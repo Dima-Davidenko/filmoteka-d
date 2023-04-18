@@ -34,6 +34,31 @@ class fetchTMDBAPI {
     uiAPI.hideLoadingInfo();
     return data;
   }
+
+  async fetchId(movie_id) {
+    uiAPI.showLoadingInfo();
+    const arrFetch = [
+      this.axiosTMDB.get(`movie/${movie_id}`, {
+        params: { language: 'uk' },
+      }),
+      this.axiosTMDB.get(`movie/${movie_id}`, {
+        params: { language: 'ru' },
+      }),
+      this.axiosTMDB.get(`movie/${movie_id}`, {
+        params: { language: 'en' },
+      }),
+      this.axiosTMDB.get(`movie/${movie_id}/videos`, {
+        params: { language: 'en' },
+      }),
+    ];
+    const arrResponse = await Promise.all(arrFetch);
+    const { data } = arrResponse[0];
+    data.ru = arrResponse[1].data;
+    data.en = arrResponse[2].data;
+    data.videos = arrResponse[3].data?.results;
+    uiAPI.hideLoadingInfo();
+    return data;
+  }
   async fetchSomethingToWatch() {
     uiAPI.showLoadingInfo();
     let page;
@@ -306,30 +331,6 @@ class fetchTMDBAPI {
     uiAPI.hideLoadingInfo();
     // console.log(data);
     return data.uk;
-  }
-  async fetchId(movie_id) {
-    uiAPI.showLoadingInfo();
-    const arrFetch = [
-      this.axiosTMDB.get(`movie/${movie_id}`, {
-        params: { language: 'uk' },
-      }),
-      this.axiosTMDB.get(`movie/${movie_id}`, {
-        params: { language: 'ru' },
-      }),
-      this.axiosTMDB.get(`movie/${movie_id}`, {
-        params: { language: 'en' },
-      }),
-      this.axiosTMDB.get(`movie/${movie_id}/videos`, {
-        params: { language: 'en' },
-      }),
-    ];
-    const arrResponse = await Promise.all(arrFetch);
-    const { data } = arrResponse[0];
-    data.ru = arrResponse[1].data;
-    data.en = arrResponse[2].data;
-    data.videos = arrResponse[3].data?.results;
-    uiAPI.hideLoadingInfo();
-    return data;
   }
 
   async fetchSearch(query = '', page = 1) {
